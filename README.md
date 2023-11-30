@@ -1,28 +1,11 @@
 # AvlTreeScheduler
+[![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&lines=Virtualization+in+practice)](https://git.io/typing-svg)
 
-**Способности:**
+Schedule build using AvlTree https://github.com/bitlush/avl-tree-c-sharp
 
-График строится на архитектуре AvlTree https://github.com/bitlush/avl-tree-c-sharp
-
-Виртуализация графика.
-
-Скроллинг со стабильным ФПС. ФПС меняется незначительно в зависимости от кол-ва блоков.
-
-Возможна генерация до 50 млн блоков. 
-
-**Известные проблемы:**
-
-Разделы линейки не видны на самом графике.
-
-Жёлтая линия текущего времени не привязана к графику.
-
-При генерации более 700 000 блоков, разделы линейки могут сбиваться на дальних значениях.
-
-Генерация AvlTree c более 5 млн элементов занимает некоторое время, в силу того, что каждый новый элемент вставляется отдельно.
-
-**Для запуска**
-
-Приложение в тестовом режиме. Запускать необходимо через Visual Studio. При запуске через .exe возможно некорректное отображание графических элементов.
+It supports: 
+up to 1000000 events
+scrolling with stable fps with use of virtualization
 
 ![image](https://github.com/SilentCoast/CyberneticallyIncScheduler/assets/94042423/f1bb6c5b-8301-4844-8955-c1331fe6b9cb)
 
