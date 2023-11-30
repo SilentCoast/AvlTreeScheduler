@@ -16,9 +16,16 @@ namespace AvlTreeScheduler.ViewModels
     [AddINotifyPropertyChangedInterface]
     public class MainViewModel
     {
+        #region consts
         private const int MinEventDuration = 1;
         private const int MaxEventDuration = 15;
+
+        private const int MaxEventsAmount = 1000000;
+        private const int MinEventsAmount = 15;
+        private const int MaxLayersAmount = 100;
+
         public const int RulerStepValue = 5;
+        #endregion
         public string Date {  get; set; }
         public int EventsAmount { get; set; } = 8000;
         public int LayersAmount { get; set; } = 10;
@@ -37,14 +44,13 @@ namespace AvlTreeScheduler.ViewModels
         {
             Date = DateFormatter.GetFormatedDate();
         }
-        
         public bool IsValidParams()
         {
             string message = null;
-            if (EventsAmount > 1000000 || EventsAmount < 15 || LayersAmount > 100)
+            if (EventsAmount > MaxEventsAmount || EventsAmount < MinEventsAmount || LayersAmount > MaxLayersAmount)
             {
-                message = $"Please check the values:\nLayers = {LayersAmount} (Allowed [1 - 100])\n" +
-                    $"Events = {EventsAmount} (Allowed [15 - 1 000 000])";
+                message = $"Please check the values:\nLayers = {LayersAmount} (Allowed [1 - {MaxLayersAmount}])\n" +
+                    $"Events = {EventsAmount} (Allowed [{MinEventsAmount} - {MaxEventsAmount}])";
             }
             if(message == null)
             {
@@ -56,7 +62,6 @@ namespace AvlTreeScheduler.ViewModels
                 return false;
             }
         }
-
         /// <summary>
         /// Populates the MainTree with random TimeLineEvents
         /// </summary>
@@ -125,7 +130,6 @@ namespace AvlTreeScheduler.ViewModels
                 DataHandled?.Invoke(this, EventArgs.Empty);
             }));
         }
-
         public List<TimeLineEvent> GetVisibleEvents(double containerWidth, double leftBoundary, double rigthBoundary)
         {
             List<TimeLineEvent> events = new List<TimeLineEvent>();

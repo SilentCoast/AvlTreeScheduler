@@ -237,6 +237,5 @@ namespace AvlTreeScheduler
         {
             SetScrollViewOffset();
         }
-
     }
 }
