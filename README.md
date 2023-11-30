@@ -2,9 +2,9 @@
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&lines=Virtualization+in+practice)](https://git.io/typing-svg)
 
 Schedule is built using <a href="https://github.com/bitlush/avl-tree-c-sharp"> AvlTree</a>
-
+<h2>Supports:</h2>
 <ul>
-    <li>Supports up to 1000000 events</li>
+    <li>Up to 1000000 events</li>
     <li>Scrolling with stable fps</li>
     <li>Uses virtualization for improved performance</li>
 </ul>
