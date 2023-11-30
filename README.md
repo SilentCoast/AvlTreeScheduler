@@ -9,5 +9,4 @@ Schedule is built using <a href="https://github.com/bitlush/avl-tree-c-sharp"> A
     <li>Uses virtualization for improved performance</li>
 </ul>
 
-![image](https://github.com/SilentCoast/AvlTreeScheduler/assets/94042423/f1bb6c5b-8301-4844-8955-c1331fe6b9cb)
-
+![252004420-f1bb6c5b-8301-4844-8955-c1331fe6b9cb](https://github.com/SilentCoast/AvlTreeScheduler/assets/94042423/4d08560f-0965-4a96-9b67-277fc9d31df8)
