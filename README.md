@@ -1,7 +1,7 @@
 # AvlTreeScheduler
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?color=%2336BCF7&lines=Virtualization+in+practice)](https://git.io/typing-svg)
 
-Schedule build using ![AvlTree](https://github.com/bitlush/avl-tree-c-sharp)
+Schedule build using <a href="https://github.com/bitlush/avl-tree-c-sharp"> AvlTree</a>
 
 It supports: 
 up to 1000000 events
