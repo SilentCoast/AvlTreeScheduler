@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AvlTreeScheduler"
+        xmlns:converters="clr-namespace:AvlTreeScheduler.Converters"
         xmlns:notsolocal="clr-namespace:AvlTreeScheduler.Classes"
         mc:Ignorable="d"
         xmlns:vm="clr-namespace:AvlTreeScheduler.ViewModels"
@@ -12,12 +13,18 @@
         Background="DarkGray"
         Icon="pack://application:,,,/Resources/Images/Completed.png"
         MinWidth="910">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="boolToVisConverter"/>
+        <converters:ReverseBooleanConverter x:Key="reverseBoolConverter"/>
+        <converters:ReverseBooleanToVisibilityConverter x:Key="reverseBoolToVisConverter"/>
+    </Window.Resources>
     <Grid Background="AliceBlue" Margin="10">
         <Grid Panel.ZIndex="50" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock  x:Name="txtGenerating"  FontSize="40" FontWeight="Bold">Generating...</TextBlock>
+            <TextBlock  x:Name="txtGenerating" FontSize="40" FontWeight="Bold" Text="Generating..."
+                        Visibility="{Binding Path=IsGenerating, Converter={StaticResource boolToVisConverter}}"/>
         </Grid>
         <Grid Height="25" VerticalAlignment="Top">
-            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Grid.Row="0" Text="July 4th Tuesday" FontWeight="Bold"></TextBlock>
+            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Grid.Row="0" Text="{Binding Date}" FontWeight="Bold"></TextBlock>
         </Grid>
         <Grid Panel.ZIndex="30" Margin="0 50 0 0" VerticalAlignment="Top" Height="25" Background="LightGray">
             <DockPanel Margin="0 0 30 0" Panel.ZIndex="20">
@@ -49,7 +56,8 @@
                     <TextBox Text="{Binding EventsAmount}" VerticalAlignment="Center" MinWidth="50" FontWeight="Bold"></TextBox>
                     <Separator Style="{StaticResource separatorWidthSmall}"/>
 
-                    <Button  x:Name="btnGenerateSchedule">
+                    <Button  x:Name="btnGenerateSchedule" IsEnabled="{Binding Path=IsGenerating,
+                        Converter={StaticResource reverseBoolConverter}}">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="4"/>
@@ -71,7 +79,9 @@
                     <RowDefinition Height="25"></RowDefinition>
                     <RowDefinition></RowDefinition>
                 </Grid.RowDefinitions>
-                <Rectangle Grid.RowSpan="5" Panel.ZIndex="10" x:Name="rectCurrentTime" Style="{StaticResource mRect}" HorizontalAlignment="Left" Width="5" Fill="Yellow"/>
+                <Rectangle Grid.RowSpan="5" Panel.ZIndex="10" x:Name="rectCurrentTime" 
+                           Style="{StaticResource mRect}" HorizontalAlignment="Left" Width="5" Fill="Yellow"
+                           Visibility="{Binding Path=IsGenerating,Converter={StaticResource reverseBoolToVisConverter}}"/>
   
                 <Grid  Name="gridTimeStamps" Grid.Row="1"  ></Grid>
             

@@ -9,7 +9,6 @@ namespace AvlTreeScheduler.Classes
     /// </summary>
     public class EventLengthConverter : IMultiValueConverter
     {
-
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             double timelineDuration = (double)(int)values[0];
@@ -23,8 +22,6 @@ namespace AvlTreeScheduler.Classes
 
             double eventWidthMultiplayer = eventDuration / timelineDuration;
             double eventWidth = eventWidthMultiplayer * containerWidth;
-
-
 
             if (targetType == typeof(Thickness))
             {

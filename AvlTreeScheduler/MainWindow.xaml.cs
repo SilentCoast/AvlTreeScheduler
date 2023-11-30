@@ -1,14 +1,13 @@
 ﻿using AvlTreeScheduler.Classes;
 using AvlTreeScheduler.ViewModels;
 using System;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using Bitlush;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace AvlTreeScheduler
 {
@@ -19,11 +18,8 @@ namespace AvlTreeScheduler
     {
         private const int TimeLineRowHeight = 30;
         private readonly MainViewModel vm;
-        private bool CanRenderEvents {  get; set; }
         private double WindowWidth { get; set; }
         private double WindowHeight {  get; set; }
-        private double containerWidth {  get; set; }
-
         public MainWindow()
         {
             InitializeComponent();
@@ -31,18 +27,23 @@ namespace AvlTreeScheduler
             vm = new MainViewModel();
             DataContext = vm;
             vm.DataHandled += Vm_DataHandled;
-
-            vm.CreateRandomEventsAsync();
+            vm.WrongInputDetected += Vm_WrongInputDetected;
 
             btnGenerateSchedule.Click += BtnGenerateSchedule_Click;
             scrollViewerOuter.ScrollChanged += ScrollViewerOuter_ScrollChanged;
             this.Loaded += MainWindow_Loaded;
             this.SizeChanged += MainWindow_SizeChanged;
+
+            vm.CreateRandomEvents();
         }
+
+        private void Vm_WrongInputDetected(object sender, MessageEventArgs e)
+        {
+            MessageBox.Show(e.Message, e.Caption);
+        }
+
         private void Vm_DataHandled(object sender, EventArgs e)
         {
-            txtGenerating.Visibility = Visibility.Hidden;
-
             // to make grid nicely scrollable with proper scale
             mainGrid.Width = vm.TimeLineEnd * 30;
 
@@ -53,151 +54,104 @@ namespace AvlTreeScheduler
             timer.Interval = new TimeSpan(0, 0, 0, 0, 10);
             timer.Start();
 
-            CanRenderEvents = true;
-            btnGenerateSchedule.IsEnabled = true;
             rectCurrentTime.Margin = new Thickness();
-            rectCurrentTime.Visibility = Visibility.Visible;
         }
-
         private void ScrollViewerOuter_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (CanRenderEvents)
+            if (!vm.IsGenerating)
             {
-                DrawObservableAvlTree();
+                DrawVisibleEvents();
             }
         }
         private void BtnGenerateSchedule_Click(object sender, RoutedEventArgs e)
         {
-            CanRenderEvents = false;
-            btnGenerateSchedule.IsEnabled = false;
-
-            txtGenerating.Visibility = Visibility.Visible;
-            scrollViewerOuter.ScrollToLeftEnd();
-            Task.Run(()=> vm.CreateRandomEventsAsync());
-            ResetGraphic();
-        }
-        
-        private void DrawEvent(TimeLineEvent timeLineEvent)
-        {
-            Grid eventGrid = new Grid();
-            eventGrid.HorizontalAlignment = HorizontalAlignment.Left;
-            gridTimeLines.Children.Add(eventGrid);
-
-            Rectangle rectangle = new Rectangle
+            if (vm.IsValidParams())
             {
-                StrokeThickness = 3,
-                Stroke = Brushes.Black,
-                Opacity = 0.8
-            };
-            switch (timeLineEvent.Type)
-            {
-                case 1:
-                    rectangle.Fill = Brushes.Orange;
-                    break;
-                case 2:
-                    rectangle.Fill = Brushes.Red;
-                    break;
-                case 3:
-                    rectangle.Fill = Brushes.LightGreen;
-                    break;
-                default:
-                    rectangle.Fill = Brushes.Gray;
-                    break;
-            }
-
-            eventGrid.Width = timeLineEvent.WidthMultiplayer * containerWidth;
-            eventGrid.Margin = new Thickness(timeLineEvent.MarginMultiplayer * containerWidth, 2, 0, 2);
-
-            eventGrid.Children.Add(rectangle);
-
-            TextBlock textBlock = new TextBlock
-            {
-                Text = "Generic Name",
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(5, 0, 0, 0)
-            };
-
-            eventGrid.Children.Add(textBlock);
-            Grid.SetZIndex(eventGrid, 10);
-            Grid.SetRow(eventGrid, timeLineEvent.Layer);
-        }
-        private void DrawObservableAvlTree()
-        {
-            SetupTimeStampsGrid();
-            containerWidth = mainGrid.ActualWidth;
-
-            AvlNode<double, TimeLineEvent> node = vm.MainTree.Root;
-            if (node != null)
-            {
-                HandleNode(node);
+                scrollViewerOuter.ScrollToLeftEnd();
+                ResetGraphic();
+                Task.Run(() => { vm.CreateRandomEvents(); });
             }
         }
-        private void HandleNode(AvlNode<double, TimeLineEvent> node)
+        private void DrawVisibleEvents()
         {
-            //margin + width
-            if (node.Key * containerWidth + node.Value.WidthMultiplayer * containerWidth < scrollViewerOuter.HorizontalOffset)
-            {
-                if (node.Right != null)
-                {
-                    HandleNode(node.Right);
-                }
-            }
-            //just margin
-            else if(node.Key * containerWidth > scrollViewerOuter.HorizontalOffset + WindowWidth)
-            {
-                if (node.Left != null)
-                {
-                    HandleNode(node.Left);
-                }
-            }
-            else
-            {
-                TimeLineEvent timeLineEvent = node.Value;
-                if (timeLineEvent.IsRendered == false)
-                {
-                    DrawEvent(timeLineEvent);
-                }
-                if (node.Left != null)
-                {
-                    HandleNode(node.Left);
-                }
-                if (node.Right != null)
-                {
-                    HandleNode(node.Right);
-                }
-            }
-        }
+            DrawRuler();
+            double containerWidth = mainGrid.ActualWidth;
+            List<TimeLineEvent> events = vm.GetVisibleEvents(containerWidth, scrollViewerOuter.HorizontalOffset,
+                scrollViewerOuter.HorizontalOffset + WindowWidth);
 
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            rectCurrentTime.Margin = new Thickness(rectCurrentTime.Margin.Left+0.4, rectCurrentTime.Margin.Top, rectCurrentTime.Margin.Right, rectCurrentTime.Margin.Bottom);
+            foreach(var timeLineEvent in events)
+            {
+                DrawEvent(timeLineEvent);
+            }
+
+            void DrawEvent(TimeLineEvent timeLineEvent)
+            {
+                Grid eventGrid = new Grid
+                {
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    Width = timeLineEvent.WidthMultiplayer * containerWidth,
+                    Margin = new Thickness(timeLineEvent.MarginMultiplayer * containerWidth, 2, 0, 2)
+                };
+                gridTimeLines.Children.Add(eventGrid);
+
+                Rectangle rectangle = new Rectangle
+                {
+                    StrokeThickness = 3,
+                    Stroke = Brushes.Black,
+                    Opacity = 0.8
+                };
+                switch (timeLineEvent.Type)
+                {
+                    case 1:
+                        rectangle.Fill = Brushes.Orange;
+                        break;
+                    case 2:
+                        rectangle.Fill = Brushes.Red;
+                        break;
+                    case 3:
+                        rectangle.Fill = Brushes.LightGreen;
+                        break;
+                    default:
+                        rectangle.Fill = Brushes.Gray;
+                        break;
+                }
+                eventGrid.Children.Add(rectangle);
+
+                TextBlock textBlock = new TextBlock
+                {
+                    Text = "Generic Name",
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(5, 0, 0, 0)
+                };
+
+                eventGrid.Children.Add(textBlock);
+                Panel.SetZIndex(eventGrid, 10);
+                Grid.SetRow(eventGrid, timeLineEvent.Layer);
+            }
         }
         private void ResetGraphic()
         {
             gridTimeStamps.Children.Clear();
-            gridTimeLines.Children.Clear();
             gridTimeStampsMicroSteps.Children.Clear();
+            gridTimeLines.Children.Clear();
             gridTimeLines.RowDefinitions.Clear();
-            rectCurrentTime.Visibility = Visibility.Collapsed;
         }
-        
         /// <summary>
-        /// Drawing ruler at the top
+        /// Draws timeline ruler at the top
         /// </summary>
-        private void SetupTimeStampsGrid()
+        private void DrawRuler()
         {
             int duration = vm.TimeLineEnd;
-            int step = vm.RulerStep;
 
             double timelineDuration = duration;
             double containerWidth = gridTimeStamps.ActualWidth;
 
-            for (int i = 0; i < duration; i += step)
+            for (int i = 0; i < duration; i += vm.RulerStep)
             {
                 double timeStampMargin = ((double)i) / timelineDuration * containerWidth;
-                double timeStampWidth = (5.0 / timelineDuration) * containerWidth;
+                double timeStampWidth = ((double)MainViewModel.RulerStepValue / timelineDuration) * containerWidth;
 
-                if (timeStampMargin >= scrollViewerOuter.HorizontalOffset - WindowWidth / 5 &&
+                if (timeStampMargin >= scrollViewerOuter.HorizontalOffset - WindowWidth / MainViewModel.RulerStepValue &&
                     timeStampMargin <= scrollViewerOuter.HorizontalOffset + WindowWidth)
                 {
                     Grid grid = new Grid
@@ -217,16 +171,17 @@ namespace AvlTreeScheduler
 
                     grid.Children.Add(textBlock);
 
+                    Style borderStyle = FindResource("blackBorder") as Style;
+
                     Border border = new Border
                     {
-                        BorderThickness = new Thickness(2, 0, 0, 2),
-                        BorderBrush = Brushes.Black
+                        Style = borderStyle
                     };
 
                     grid.Children.Add(border);
                     gridTimeStamps.Children.Add(grid);
 
-                    for(int j = 1; j <= 5; j++)
+                    for(int j = 1; j <= MainViewModel.RulerStepValue; j++)
                     {
                         double timeStampMicroMargin = ((double)(i+j)) / timelineDuration * containerWidth;
 
@@ -234,8 +189,7 @@ namespace AvlTreeScheduler
                         {
                             Margin = new Thickness(timeStampMicroMargin, 0, 0, 0),
                             HorizontalAlignment = HorizontalAlignment.Left,
-                            BorderThickness = new Thickness(2, 0, 0, 2),
-                            BorderBrush = Brushes.Black
+                            Style = borderStyle
                         };
 
                         gridTimeStampsMicroSteps.Children.Add(bor);
@@ -244,7 +198,6 @@ namespace AvlTreeScheduler
                 }
             }
         }
-        
         /// <summary>
         /// Sets up grid rows according to viewmodel data
         /// </summary>
@@ -254,10 +207,7 @@ namespace AvlTreeScheduler
             {
                 gridTimeLines.RowDefinitions.Add(new RowDefinition() { MinHeight = TimeLineRowHeight, MaxHeight = TimeLineRowHeight });
 
-                Border border = new Border
-                {
-                    BorderBrush = Brushes.Black
-                };
+                Border border = new Border();
                 if (i % 2 == 0)
                 {
                     border.Background = Brushes.AliceBlue;
@@ -275,16 +225,17 @@ namespace AvlTreeScheduler
             WindowWidth = this.RenderSize.Width;
             WindowHeight = this.RenderSize.Height;
         }
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            rectCurrentTime.Margin = new Thickness(rectCurrentTime.Margin.Left + 0.4, rectCurrentTime.Margin.Top, rectCurrentTime.Margin.Right, rectCurrentTime.Margin.Bottom);
+        }
         private void MainWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             SetScrollViewOffset();
         }
-
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             SetScrollViewOffset();
-
-            CanRenderEvents = true;
         }
 
     }

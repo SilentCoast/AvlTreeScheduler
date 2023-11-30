@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using PropertyChanged;
 using System.Windows.Threading;
 using System.Windows;
 using AvlTreeScheduler.Classes;
 using Bitlush;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AvlTreeScheduler.ViewModels
 {
@@ -14,30 +18,55 @@ namespace AvlTreeScheduler.ViewModels
     {
         private const int MinEventDuration = 1;
         private const int MaxEventDuration = 15;
+        public const int RulerStepValue = 5;
+        public string Date {  get; set; }
         public int EventsAmount { get; set; } = 8000;
         public int LayersAmount { get; set; } = 10;
         public int PendingAmount { get; set; }
         public int JeopardyAmount { get; set; }
         public int CompletedAmount { get; set; }
 
+        public bool IsGenerating {  get; set; }
+
         public int TimeLineEnd { get; set; }
-        public int RulerStep => TimeLineEnd / (TimeLineEnd / 5);
+        public int RulerStep => TimeLineEnd / (TimeLineEnd / RulerStepValue);
         public int GridRowDefinitionsCount { get; set; }
 
         public AvlTree<double, TimeLineEvent> MainTree { get; set; }
-
-        public void CreateRandomEventsAsync()
+        public MainViewModel()
         {
-            GridRowDefinitionsCount = 0;
-            if (EventsAmount < LayersAmount || EventsAmount >= int.MaxValue || EventsAmount < 15 || LayersAmount > 100)
+            Date = DateFormatter.GetFormatedDate();
+        }
+        
+        public bool IsValidParams()
+        {
+            string message = null;
+            if (EventsAmount > 1000000 || EventsAmount < 15 || LayersAmount > 100)
             {
-                MessageBox.Show("Make sure that the values you're entering are correct:\n" +
-                    "Events >= Layers\nEvents >= 15\nLayers > 0\nLayers <= 100", "Wrong values");
-                return;
+                message = $"Please check the values:\nLayers = {LayersAmount} (Allowed [1 - 100])\n" +
+                    $"Events = {EventsAmount} (Allowed [15 - 1 000 000])";
             }
+            if(message == null)
+            {
+                return true;
+            }
+            else
+            {
+                WrongInputDetected?.Invoke(this, new MessageEventArgs() { Message = message, Caption = "Wrong input" });
+                return false;
+            }
+        }
 
-            //in order to make corrent ruler's sections with step of 5
-            TimeLineEnd = (EventsAmount - (EventsAmount % 5));
+        /// <summary>
+        /// Populates the MainTree with random TimeLineEvents
+        /// </summary>
+        /// <returns>true if population is successfull, otherwise false</returns>
+        public void CreateRandomEvents()
+        {
+            IsGenerating = true;
+            GridRowDefinitionsCount = 0;
+            //in order to make correct ruler's sections with proper steping
+            TimeLineEnd = EventsAmount - (EventsAmount % RulerStepValue);
 
             int minEventEntryAt = 0;
             int maxEventEntryAt = TimeLineEnd - MaxEventDuration;
@@ -46,7 +75,6 @@ namespace AvlTreeScheduler.ViewModels
             JeopardyAmount = 0;
             CompletedAmount = 0;
 
-            //TODO: it does not account the fraction remaining after division. and it distributes events evenly which is not realistic
             int eventsPerLayer = EventsAmount / LayersAmount;
 
             MainTree = new AvlTree<double, TimeLineEvent>();
@@ -90,29 +118,67 @@ namespace AvlTreeScheduler.ViewModels
                 }
                 GridRowDefinitionsCount++;
             }
+            IsGenerating = false;
+
             Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
                 DataHandled?.Invoke(this, EventArgs.Empty);
             }));
         }
 
+        public List<TimeLineEvent> GetVisibleEvents(double containerWidth, double leftBoundary, double rigthBoundary)
+        {
+            List<TimeLineEvent> events = new List<TimeLineEvent>();
+            AvlNode<double, TimeLineEvent> rootNode = MainTree.Root;
+            if (rootNode != null)
+            {
+                HandleNode(rootNode);
+            }
+            void HandleNode(AvlNode<double, TimeLineEvent> node)
+            {
+                //check if the node is inside the boundaries.
+                //If it is lower than leftBoundary - going to the right node
+                if (node.Key * containerWidth + node.Value.WidthMultiplayer * containerWidth < leftBoundary)
+                {
+                    if (node.Right != null)
+                    {
+                        HandleNode(node.Right);
+                    }
+                }
+                //if it is higher than rightBoundary - going to the left node
+                else if (node.Key * containerWidth > rigthBoundary)
+                {
+                    if (node.Left != null)
+                    {
+                        HandleNode(node.Left);
+                    }
+                }
+                //if it is inside the boundaries - going in both the left and the right nodes
+                else
+                {
+                    TimeLineEvent timeLineEvent = node.Value;
+                    if (timeLineEvent.IsRendered == false)
+                    {
+                        events.Add(timeLineEvent);
+                    }
+                    if (node.Left != null)
+                    {
+                        HandleNode(node.Left);
+                    }
+                    if (node.Right != null)
+                    {
+                        HandleNode(node.Right);
+                    }
+                }
+            }
+            return events;
+        }
         /// <summary>
         /// Shoots when TimeLines generated and ready to be rendered
         /// </summary>
         public event EventHandler DataHandled;
-       
-        private ObservableCollection<TimeLine> _timeLines = new ObservableCollection<TimeLine>();
-        public ObservableCollection<TimeLine> TimeLines
-        {
-            get
-            {
-                return _timeLines;
-            }
-            set
-            {
-                _timeLines = value;
-            }
-        }
+        public delegate void MessageEventHandler(object sender, MessageEventArgs e);
+        public event MessageEventHandler WrongInputDetected;
     }
 }
 

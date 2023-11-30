@@ -23,4 +23,8 @@
         <Setter Property="Opacity" Value="0.8"/>
     </Style>
 
+    <Style TargetType="Border" x:Key="blackBorder">
+        <Setter Property="BorderBrush" Value="Black"/>
+        <Setter Property="BorderThickness" Value="2, 0, 0, 2"/>
+    </Style>
 </ResourceDictionary>
