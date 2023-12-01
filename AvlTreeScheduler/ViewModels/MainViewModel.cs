@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using PropertyChanged;
 using System.Windows.Threading;
 using System.Windows;
 using AvlTreeScheduler.Classes;
 using Bitlush;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace AvlTreeScheduler.ViewModels
 {
