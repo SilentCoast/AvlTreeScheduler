@@ -1,5 +1,5 @@
 # AvlTreeScheduler
-[![Typing SVG](https://readme-typing-svg.herokuapp.com?duration=3500&color=%2336BCF7&lines=Unlocking the Power of Virtualization)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.herokuapp.com?duration=3500&color=%2336BCF7&lines=Unlocking+the+Power+of+Virtualization)](https://git.io/typing-svg)
 
 Schedule is built using <a href="https://github.com/bitlush/avl-tree-c-sharp"> AvlTree</a>
 <h3>Supports:</h3>
