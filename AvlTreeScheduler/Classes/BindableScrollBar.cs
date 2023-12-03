@@ -1,7 +1,7 @@
-﻿using System.Windows.Controls.Primitives;
+﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows;
 
 namespace AvlTreeScheduler.Classes
 {
@@ -31,8 +31,6 @@ namespace AvlTreeScheduler.Classes
                 sender.UpdateBindings();
             }
         }
-
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BindableScrollBar"/> class.

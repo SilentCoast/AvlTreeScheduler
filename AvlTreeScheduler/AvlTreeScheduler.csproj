@@ -62,13 +62,13 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Classes\BindableScrollBar.cs" />
-    <Compile Include="Classes\DateFormatter.cs" />
+    <Compile Include="Classes\EnUSDateFormatter.cs" />
+    <Compile Include="Classes\IDateFormatter.cs" />
     <Compile Include="Classes\MessageEventArgs.cs" />
     <Compile Include="Converters\BooleanConverter.cs" />
     <Compile Include="Converters\ReverseBooleanConverter.cs" />
     <Compile Include="Converters\ReverseBooleanToVisibilityConverter.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="Classes\TimeLine.cs" />
     <Compile Include="Classes\TimeLineEvent.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

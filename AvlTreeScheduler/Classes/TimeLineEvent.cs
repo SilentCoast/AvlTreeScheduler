@@ -3,7 +3,7 @@
 namespace AvlTreeScheduler.Classes
 {
     [AddINotifyPropertyChangedInterface]
-    public class TimeLineEvent 
+    public class TimeLineEvent
     {
         public int Start { get; set; }
 
@@ -27,6 +27,5 @@ namespace AvlTreeScheduler.Classes
         /// </summary>
         public double WidthMultiplayer { get; set; }
     }
-    
 }
 

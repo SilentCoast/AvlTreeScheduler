@@ -24,7 +24,7 @@ namespace AvlTreeScheduler
         {
             InitializeComponent();
             
-            vm = new MainViewModel();
+            vm = new MainViewModel(new EnUSDateFormatter());
             DataContext = vm;
             vm.DataHandled += Vm_DataHandled;
             vm.WrongInputDetected += Vm_WrongInputDetected;

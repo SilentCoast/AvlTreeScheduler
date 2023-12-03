@@ -35,9 +35,9 @@ namespace AvlTreeScheduler.ViewModels
         public int GridRowDefinitionsCount { get; set; }
 
         public AvlTree<double, TimeLineEvent> MainTree { get; set; }
-        public MainViewModel()
+        public MainViewModel(IDateFormatter dateFormatter)
         {
-            Date = DateFormatter.GetFormatedDate();
+            Date = dateFormatter.GetFormattedDate();
         }
         public bool IsValidParams()
         {
