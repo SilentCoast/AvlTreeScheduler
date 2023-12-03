@@ -89,8 +89,8 @@ namespace AvlTreeScheduler
                 Grid eventGrid = new Grid
                 {
                     HorizontalAlignment = HorizontalAlignment.Left,
-                    Width = timeLineEvent.WidthMultiplayer * containerWidth,
-                    Margin = new Thickness(timeLineEvent.MarginMultiplayer * containerWidth, 2, 0, 2)
+                    Width = timeLineEvent.DurationRatio * containerWidth,
+                    Margin = new Thickness(timeLineEvent.StartRatio * containerWidth, 2, 0, 2)
                 };
                 gridTimeLines.Children.Add(eventGrid);
 

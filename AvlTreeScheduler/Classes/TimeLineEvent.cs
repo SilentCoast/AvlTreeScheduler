@@ -5,6 +5,14 @@ namespace AvlTreeScheduler.Classes
     [AddINotifyPropertyChangedInterface]
     public class TimeLineEvent
     {
+        /// <summary>
+        /// Ratio of Start of the event to the Duration of the TimeLine
+        /// </summary>
+        public double StartRatio { get; set; }
+        /// <summary>
+        /// Ratio of Duration of the event to the Duration of the TimeLine
+        /// </summary>
+        public double DurationRatio { get; set; }
         public int Start { get; set; }
 
         public int Duration { get; set; }
@@ -17,15 +25,6 @@ namespace AvlTreeScheduler.Classes
         public int Type { get; set; }
         public bool IsRendered { get; set; }
         public int Layer { get; set; }
-
-        /// <summary>
-        /// make sure to multiply it by containerWidth before using
-        /// </summary>
-        public double MarginMultiplayer { get; set; }
-        /// <summary>
-        /// make sure to multiply it by containerWidth before using
-        /// </summary>
-        public double WidthMultiplayer { get; set; }
     }
 }
 

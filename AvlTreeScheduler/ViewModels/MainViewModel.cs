@@ -110,8 +110,8 @@ namespace AvlTreeScheduler.ViewModels
                         Duration = duration,
                         Start = start,
                         Type = type,
-                        MarginMultiplayer = eventMarginMultiplayer,
-                        WidthMultiplayer = eventWidthMultiplayer,
+                        StartRatio = eventMarginMultiplayer,
+                        DurationRatio = eventWidthMultiplayer,
                         Layer = i
                     };
                     MainTree.Insert(eventMarginMultiplayer, mEvent);
@@ -137,7 +137,7 @@ namespace AvlTreeScheduler.ViewModels
             {
                 //check if the node is inside the boundaries.
                 //If it is lower than leftBoundary - going to the right node
-                if (node.Key * containerWidth + node.Value.WidthMultiplayer * containerWidth < leftBoundary)
+                if (node.Key * containerWidth + node.Value.DurationRatio * containerWidth < leftBoundary)
                 {
                     if (node.Right != null)
                     {
